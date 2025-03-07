@@ -32,8 +32,8 @@ def load_config(config_path="openai_models.json"):
 
 def save_config(config, config_path="openai_models.json"):
     """Save the updated configuration to file."""
-    # Sort models by creation date (oldest first)
-    config["models"] = sorted(config["models"], key=lambda x: x["created"])
+    # Sort models by api_created date (oldest first)
+    config["models"] = sorted(config["models"], key=lambda x: x["api_created"])
     
     with open(config_path, 'w') as f:
         json.dump(config, f, indent=2)
@@ -62,7 +62,7 @@ def check_for_new_models():
                 # Add to our config
                 config["models"].append({
                     "id": model["id"],
-                    "created": model["created"]
+                    "api_created": model["created"]
                 })
         
         # Save updated config if we found new models
