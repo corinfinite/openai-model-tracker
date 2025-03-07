@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "openai-model-tracker"
+version = "0.1.0"
+description = ""
+authors = ["Author Name <author@example.com>"]
+readme = "README.md"
+packages = [
+  { include = "openai-model-tracker" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+python-dotenv = "^1.0.1"
+requests = "^2.32.3"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.3.0"
+mypy = "^1.11.0"
+
+[tool.poetry.scripts]
+openai-model-tracker = "openai-model-tracker.__main__:main"
+
+[tool.black]
+
+[tool.mypy]
+strict = true
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
