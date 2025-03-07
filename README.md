@@ -7,6 +7,19 @@ poetry install
 poetry run openai-model-tracker
 ```
 
+## Usage
+
+- Run without arguments to check for and add new OpenAI models:
+  ```
+  poetry run openai-model-tracker
+  ```
+
+- Run with the `list` argument to display a table of all tracked models:
+  ```
+  poetry run openai-model-tracker list
+  ```
+  This will show all models sorted by creation date in a formatted table.
+
 # Formating & type checking
 ```
 poetry run black openai-model-tracker

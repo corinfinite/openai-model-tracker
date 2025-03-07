@@ -3,6 +3,7 @@ import json
 import requests
 from dotenv import load_dotenv
 from datetime import datetime
+import tabulate
 
 # Load environment variables from .env file
 load_dotenv()
@@ -75,9 +76,39 @@ def check_for_new_models():
     except Exception as e:
         print(f"Error: {str(e)}")
 
+def print_models_table():
+    """Pretty print the models from the config file in a table format."""
+    try:
+        # Load config
+        config = load_config()
+        
+        if not config["models"]:
+            print("No models found in the config file.")
+            return
+        
+        # Prepare table data
+        table_data = []
+        for model in sorted(config["models"], key=lambda x: x["api_created"]):
+            # Convert timestamp to human readable date
+            created_date = datetime.fromtimestamp(model["api_created"]).strftime("%Y-%m-%d %H:%M:%S")
+            table_data.append([model["id"], created_date])
+        
+        # Print table
+        headers = ["Model ID", "Created Date"]
+        print(tabulate.tabulate(table_data, headers=headers, tablefmt="grid"))
+        print(f"\nTotal models: {len(config['models'])}")
+        
+    except Exception as e:
+        print(f"Error printing models table: {str(e)}")
+
 def main():
     """Main entry point for the application."""
-    check_for_new_models()
+    import sys
+    
+    if len(sys.argv) > 1 and sys.argv[1] == "list":
+        print_models_table()
+    else:
+        check_for_new_models()
 
 if __name__ == "__main__":
     main()
