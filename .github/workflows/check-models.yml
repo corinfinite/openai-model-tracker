@@ -42,10 +42,10 @@ jobs:
       run: |
         # Run the tool to check for new models (exit code 1 if new models found)
         # Use || true to prevent workflow failure if exit code is 1
-        poetry run openai-model-tracker || echo "New models detected!"
+        poetry run openai_model_tracker || echo "New models detected!"
         
         # Explicitly run the update command to add new models to config
-        poetry run openai-model-tracker update
+        poetry run openai_model_tracker update
         
         # If there are changes to the JSON file, commit them
         if [ -n "$(git status --porcelain)" ]; then

@@ -79,7 +79,7 @@ def check_for_new_models():
             print(
                 f"\nFound {len(new_models)} new models that are not in the config file."
             )
-            print("Run 'openai-model-tracker update' to add them to the config file.")
+            print("Run 'openai_model_tracker update' to add them to the config file.")
         else:
             print("No new models found.")
 

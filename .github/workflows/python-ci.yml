@@ -44,13 +44,13 @@ jobs:
     # Show the diff first for debugging purposes
     - name: Show Black formatting diff
       continue-on-error: true
-      run: poetry run black --diff "openai-model-tracker/"
+      run: poetry run black --diff "openai_model_tracker/"
       
     # For this initial PR, we'll make the Black check non-blocking
     # This allows the workflow to be merged, then strictly enforced for future PRs
     - name: Check formatting with Black
       continue-on-error: ${{ github.event.pull_request.number == 4 }}
-      run: poetry run black --check "openai-model-tracker/"
+      run: poetry run black --check "openai_model_tracker/"
       
     # Add a warning message if this is PR #4
     - name: Format warning for initial PR
