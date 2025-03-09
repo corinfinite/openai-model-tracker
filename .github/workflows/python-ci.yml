@@ -41,28 +41,9 @@ jobs:
     - name: Install dependencies
       run: poetry install --with dev
       
-    # For main branch pushes - just check, don't fix
-    - name: Check formatting with Black (main branch)
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # Check formatting with Black - fail if there are issues (don't fix automatically)
+    - name: Check formatting with Black
       run: poetry run black --check "openai-model-tracker/"
-      
-    # For PRs - fix formatting issues automatically
-    - name: Check Black formatting
-      if: github.event_name == 'pull_request'
-      id: check
-      continue-on-error: true  # Allow the workflow to continue if black finds formatting issues
-      run: poetry run black --check "openai-model-tracker/"
-      
-    - name: Apply Black formatting
-      if: github.event_name == 'pull_request' && steps.check.outcome == 'failure'
-      run: poetry run black "openai-model-tracker/"
-      
-    - name: Commit formatting changes 
-      if: github.event_name == 'pull_request' && steps.check.outcome == 'failure'
-      uses: stefanzweifel/git-auto-commit-action@v4
-      with:
-        commit_message: "Apply automated Black formatting"
-        file_pattern: 'openai-model-tracker/**/*.py'
       
     # For this PR, we'll temporarily disable mypy checks
     # This will be re-enabled in a future PR once we can address the directory naming issue
