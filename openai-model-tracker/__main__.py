@@ -1,10 +1,11 @@
-import os
 import json
-import requests
-from dotenv import load_dotenv
-from datetime import datetime
-import tabulate
+import os
 import sys
+from datetime import datetime
+
+import requests
+import tabulate
+from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
@@ -67,15 +68,11 @@ def check_for_new_models():
                     "%Y-%m-%d %H:%M:%S"
                 )
                 print(f"New model discovered: {model['id']} (created: {model_date})")
-                new_models.append(
-                    {"id": model["id"], "api_created": model["created"]}
-                )
+                new_models.append({"id": model["id"], "api_created": model["created"]})
 
         # Report findings
         if new_models:
-            print(
-                f"\nFound {len(new_models)} new models that are not in the config file."
-            )
+            print(f"\nFound {len(new_models)} new models that are not in the config file.")
             print("Run 'openai-model-tracker update' to add them to the config file.")
         else:
             print("No new models found.")
@@ -140,7 +137,6 @@ def print_models_table():
 
 def main():
     """Main entry point for the application."""
-
     if len(sys.argv) > 1:
         command = sys.argv[1]
         if command == "list":
