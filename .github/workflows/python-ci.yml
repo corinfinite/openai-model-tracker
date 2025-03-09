@@ -41,7 +41,12 @@ jobs:
     - name: Install dependencies
       run: poetry install --with dev
       
-    # Check formatting with Black - fail if there are issues (don't fix automatically)
+    # Show the diff first for debugging purposes
+    - name: Show Black formatting diff
+      continue-on-error: true
+      run: poetry run black --diff "openai-model-tracker/"
+      
+    # Then check formatting with Black
     - name: Check formatting with Black
       run: poetry run black --check "openai-model-tracker/"
       
