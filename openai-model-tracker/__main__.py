@@ -130,7 +130,6 @@ def print_models_table():
 
 def main():
     """Main entry point for the application."""
-    exit_code = 0
     
     if len(sys.argv) > 1:
         command = sys.argv[1]
@@ -144,11 +143,9 @@ def main():
     else:
         # Default behavior is now to only check, not modify
         new_models = check_for_new_models()
-        # Exit with non-zero status if new models are found (useful for CI/CD)
         if new_models:
-            exit_code = 1
-    
-    sys.exit(exit_code)
+            sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
