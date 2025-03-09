@@ -1,3 +1,5 @@
+"""OpenAI Model Tracker - Track new models as they are released."""
+
 import json
 import os
 import sys
@@ -21,7 +23,9 @@ def get_openai_models():
 
     response = requests.get("https://api.openai.com/v1/models", headers=headers)
     if response.status_code != 200:
-        raise Exception(f"Error fetching models: {response.status_code} - {response.text}")
+        raise Exception(
+            f"Error fetching models: {response.status_code} - {response.text}"
+        )
 
     return response.json()
 
@@ -72,7 +76,9 @@ def check_for_new_models():
 
         # Report findings
         if new_models:
-            print(f"\nFound {len(new_models)} new models that are not in the config file.")
+            print(
+                f"\nFound {len(new_models)} new models that are not in the config file."
+            )
             print("Run 'openai-model-tracker update' to add them to the config file.")
         else:
             print("No new models found.")
