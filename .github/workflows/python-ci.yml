@@ -59,10 +59,6 @@ jobs:
         echo "::warning::Black formatting check is non-blocking for this initial PR."
         echo "::warning::Future PRs will be required to pass formatting checks."
       
-    # For this PR, we'll temporarily disable mypy checks
-    # This will be re-enabled in a future PR once we can address the directory naming issue
+    # Run MyPy for strict type checking
     - name: Type check with MyPy
-      continue-on-error: true
-      run: |
-        echo "Skipping mypy checks due to package name issues."
-        echo "Will re-enable in a future PR once directory naming is addressed."
+      run: poetry run mypy "openai_model_tracker/"

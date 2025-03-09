@@ -4,6 +4,7 @@ import json
 import os
 import sys
 from datetime import datetime
+from typing import Any, Dict, List, Set, Optional
 
 import requests
 import tabulate
@@ -13,7 +14,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def get_openai_models():
+def get_openai_models() -> Dict[str, Any]:
     """Query the OpenAI API for available models."""
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
@@ -30,7 +31,7 @@ def get_openai_models():
     return response.json()
 
 
-def load_config(config_path="openai_models.json"):
+def load_config(config_path: str = "openai_models.json") -> Dict[str, List[Dict[str, Any]]]:
     """Load the existing configuration file or create a new one if it doesn't exist."""
     if os.path.exists(config_path):
         with open(config_path, "r") as f:
@@ -38,7 +39,9 @@ def load_config(config_path="openai_models.json"):
     return {"models": []}
 
 
-def save_config(config, config_path="openai_models.json"):
+def save_config(
+    config: Dict[str, List[Dict[str, Any]]], config_path: str = "openai_models.json"
+) -> None:
     """Save the updated configuration to file."""
     # Sort models by api_created date (oldest first)
     config["models"] = sorted(config["models"], key=lambda x: x["api_created"])
@@ -47,7 +50,7 @@ def save_config(config, config_path="openai_models.json"):
         json.dump(config, f, indent=2)
 
 
-def check_for_new_models():
+def check_for_new_models() -> List[Dict[str, Any]]:
     """Check for new models but don't update the config file.
 
     Returns:
@@ -61,10 +64,10 @@ def check_for_new_models():
         config = load_config()
 
         # Create a set of existing model IDs for efficient lookup
-        existing_model_ids = {model["id"] for model in config["models"]}
+        existing_model_ids: Set[str] = {model["id"] for model in config["models"]}
 
         # Check for new models
-        new_models = []
+        new_models: List[Dict[str, Any]] = []
         for model in api_response["data"]:
             if model["id"] not in existing_model_ids:
                 # This is a new model
@@ -90,7 +93,7 @@ def check_for_new_models():
         return []
 
 
-def update_models_config():
+def update_models_config() -> None:
     """Check for new models and update the config file."""
     try:
         new_models = check_for_new_models()
@@ -113,7 +116,7 @@ def update_models_config():
         print(f"Error updating models: {str(e)}")
 
 
-def print_models_table():
+def print_models_table() -> None:
     """Pretty print the models from the config file in a table format."""
     try:
         # Load config
@@ -124,7 +127,7 @@ def print_models_table():
             return
 
         # Prepare table data
-        table_data = []
+        table_data: List[List[str]] = []
         for model in sorted(config["models"], key=lambda x: x["api_created"]):
             # Convert timestamp to human readable date
             created_date = datetime.fromtimestamp(model["api_created"]).strftime(
@@ -141,7 +144,7 @@ def print_models_table():
         print(f"Error printing models table: {str(e)}")
 
 
-def main():
+def main() -> None:
     """Main entry point for the application."""
     if len(sys.argv) > 1:
         command = sys.argv[1]
