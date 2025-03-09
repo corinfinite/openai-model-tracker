@@ -1,0 +1,60 @@
+name: Check for New OpenAI Models
+
+on:
+  schedule:
+    # Run daily at midnight UTC
+    - cron: '0 0 * * *'
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: 2.0.0
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+    
+    - name: Cache Poetry dependencies
+      uses: actions/cache@v3
+      with:
+        path: .venv
+        key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-poetry-
+        
+    - name: Install dependencies
+      run: poetry install
+      
+    - name: Check for new models
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      run: |
+        # Run the tool to check for new models (exit code 1 if new models found)
+        # Use || true to prevent workflow failure if exit code is 1
+        poetry run openai-model-tracker || echo "New models detected!"
+        
+        # Explicitly run the update command to add new models to config
+        poetry run openai-model-tracker update
+        
+        # If there are changes to the JSON file, commit them
+        if [ -n "$(git status --porcelain)" ]; then
+          git config --global user.name 'GitHub Action'
+          git config --global user.email 'action@github.com'
+          git add openai_models.json
+          git commit -m "Auto-update: Found new OpenAI models"
+          git push
+          echo "Updated openai_models.json with new models!"
+        else
+          echo "No new models found."
+        fi
