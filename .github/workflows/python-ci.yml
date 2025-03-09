@@ -11,6 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+      with:
+        # Pull request events check out a merge commit, not the PR's HEAD
+        # We need to specify the HEAD directly to enable auto-fixing commits
+        ref: ${{ github.event.pull_request.head.sha }}
     
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -35,8 +39,23 @@ jobs:
     - name: Install dependencies
       run: poetry install --with dev
       
-    - name: Check formatting with Black
-      run: poetry run black --check openai-model-tracker/
+    - name: Format with Black
+      id: black
+      # Format files directly during PR development
+      # Later can change to check-only for main branch
+      run: |
+        poetry run black openai-model-tracker/
+        echo "formatting_changed=$(git diff --exit-code || echo 'true')" >> $GITHUB_OUTPUT
+      
+    - name: Commit formatting changes if needed
+      if: ${{ github.event_name == 'pull_request' && steps.black.outputs.formatting_changed == 'true' }}
+      uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: "Apply automated Black formatting"
+        file_pattern: 'openai-model-tracker/*.py'
+        commit_user_name: "GitHub Actions"
+        commit_user_email: "actions@github.com"
+        commit_author: "GitHub Actions <actions@github.com>"
       
     - name: Type check with MyPy
       run: poetry run mypy openai-model-tracker/
