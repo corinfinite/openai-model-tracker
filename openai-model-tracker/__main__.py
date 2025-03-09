@@ -41,7 +41,11 @@ def save_config(config, config_path="openai_models.json"):
         json.dump(config, f, indent=2)
 
 def check_for_new_models():
-    """Check for new models but don't update the config file."""
+    """Check for new models but don't update the config file.
+    
+    Returns:
+        list: A list of new models found. Empty list if no new models found.
+    """
     try:
         # Get models from API
         api_response = get_openai_models()
@@ -126,6 +130,8 @@ def print_models_table():
 
 def main():
     """Main entry point for the application."""
+    exit_code = 0
+    
     if len(sys.argv) > 1:
         command = sys.argv[1]
         if command == "list":
@@ -137,7 +143,12 @@ def main():
             print("Available commands: list, update")
     else:
         # Default behavior is now to only check, not modify
-        check_for_new_models()
+        new_models = check_for_new_models()
+        # Exit with non-zero status if new models are found (useful for CI/CD)
+        if new_models:
+            exit_code = 1
+    
+    sys.exit(exit_code)
 
 if __name__ == "__main__":
     main()
