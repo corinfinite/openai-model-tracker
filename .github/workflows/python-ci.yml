@@ -11,11 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+      if: github.event_name == 'pull_request'
       with:
-        # Pull request events check out a merge commit, not the PR's HEAD
-        # We need to specify the HEAD directly to enable auto-fixing commits
         ref: ${{ github.event.pull_request.head.sha }}
-    
+        
+    - uses: actions/checkout@v3
+      if: github.event_name != 'pull_request'
+        
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
@@ -39,20 +41,28 @@ jobs:
     - name: Install dependencies
       run: poetry install --with dev
       
-    - name: Format with Black
+    # For main branch pushes - just check, don't fix
+    - name: Check formatting with Black (main branch)
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: poetry run black --check openai-model-tracker/
+      
+    # For PRs - fix formatting issues automatically
+    - name: Check Black formatting
+      if: github.event_name == 'pull_request'
+      id: check
+      continue-on-error: true  # Allow the workflow to continue if black finds formatting issues
+      run: poetry run black --check openai-model-tracker/
+      
+    - name: Apply Black formatting
+      if: github.event_name == 'pull_request' && steps.check.outcome == 'failure'
       run: poetry run black openai-model-tracker/
       
-    - name: Commit formatting changes if needed
-      # Only commit changes on PRs
-      if: github.event_name == 'pull_request'
+    - name: Commit formatting changes 
+      if: github.event_name == 'pull_request' && steps.check.outcome == 'failure'
       uses: stefanzweifel/git-auto-commit-action@v4
       with:
         commit_message: "Apply automated Black formatting"
-        file_pattern: 'openai-model-tracker/*.py'
-        commit_user_name: "GitHub Actions"
-        commit_user_email: "actions@github.com"
-        commit_author: "GitHub Actions <actions@github.com>"
-        # This action automatically detects if there are changes
+        file_pattern: 'openai-model-tracker/**/*.py'
       
     - name: Type check with MyPy
       run: poetry run mypy openai-model-tracker/
