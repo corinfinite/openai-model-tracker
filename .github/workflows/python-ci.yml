@@ -44,18 +44,18 @@ jobs:
     # For main branch pushes - just check, don't fix
     - name: Check formatting with Black (main branch)
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      run: poetry run black --check openai-model-tracker/
+      run: poetry run black --check "openai-model-tracker/"
       
     # For PRs - fix formatting issues automatically
     - name: Check Black formatting
       if: github.event_name == 'pull_request'
       id: check
       continue-on-error: true  # Allow the workflow to continue if black finds formatting issues
-      run: poetry run black --check openai-model-tracker/
+      run: poetry run black --check "openai-model-tracker/"
       
     - name: Apply Black formatting
       if: github.event_name == 'pull_request' && steps.check.outcome == 'failure'
-      run: poetry run black openai-model-tracker/
+      run: poetry run black "openai-model-tracker/"
       
     - name: Commit formatting changes 
       if: github.event_name == 'pull_request' && steps.check.outcome == 'failure'
@@ -64,5 +64,9 @@ jobs:
         commit_message: "Apply automated Black formatting"
         file_pattern: 'openai-model-tracker/**/*.py'
       
+    # Note: Special handling for mypy because hyphens in package/directory names
+    # cause issues with Python's module resolution
     - name: Type check with MyPy
-      run: poetry run mypy openai-model-tracker/
+      run: |
+        cd openai-model-tracker
+        poetry run mypy __main__.py
