@@ -28,14 +28,16 @@ def get_openai_models() -> Dict[str, Any]:
             f"Error fetching models: {response.status_code} - {response.text}"
         )
 
-    return response.json()
+    result: Dict[str, Any] = response.json()
+    return result
 
 
 def load_config(config_path: str = "openai_models.json") -> Dict[str, List[Dict[str, Any]]]:
     """Load the existing configuration file or create a new one if it doesn't exist."""
     if os.path.exists(config_path):
         with open(config_path, "r") as f:
-            return json.load(f)
+            result: Dict[str, List[Dict[str, Any]]] = json.load(f)
+            return result
     return {"models": []}
 
 
