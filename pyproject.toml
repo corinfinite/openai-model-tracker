@@ -28,9 +28,6 @@ line-length = 88
 
 [tool.mypy]
 strict = true
-disallow_any_unimported = false
-disallow_any_decorated = false
-disallow_any_explicit = false
 
 [build-system]
 requires = ["poetry-core"]

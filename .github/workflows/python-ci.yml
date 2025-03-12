@@ -45,23 +45,9 @@ jobs:
         # Install dependencies
         poetry install --with dev
       
-    # Show the diff first for debugging purposes
-    - name: Show Black formatting diff
-      continue-on-error: true
-      run: poetry run black --diff "openai_model_tracker/"
-      
-    # For this initial PR, we'll make the Black check non-blocking
-    # This allows the workflow to be merged, then strictly enforced for future PRs
+    # Check formatting with Black
     - name: Check formatting with Black
-      continue-on-error: ${{ github.event.pull_request.number == 4 }}
       run: poetry run black --check "openai_model_tracker/"
-      
-    # Add a warning message if this is PR #4
-    - name: Format warning for initial PR
-      if: github.event.pull_request.number == 4
-      run: |
-        echo "::warning::Black formatting check is non-blocking for this initial PR."
-        echo "::warning::Future PRs will be required to pass formatting checks."
       
     # Run MyPy for strict type checking
     - name: Type check with MyPy
