@@ -132,11 +132,19 @@ jobs:
           exit 1
         fi
         
-        # Store git status for the next step
-        if [ -n "$(git status --porcelain)" ]; then
+        # Check specifically for changes to openai_models.json, not just any file
+        if [ -n "$(git status --porcelain openai_models.json)" ]; then
+          echo "✅ Changes detected in openai_models.json"
           echo "changes_detected=true" >> $GITHUB_OUTPUT
         else
+          echo "No changes to openai_models.json detected"
           echo "changes_detected=false" >> $GITHUB_OUTPUT
+          
+          # Diagnostic information about other changed files
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Note: Other files were modified but not openai_models.json:"
+            git status --porcelain
+          fi
         fi
     
     - name: Commit and push changes
@@ -146,15 +154,21 @@ jobs:
         git config --global user.name 'GitHub Action'
         git config --global user.email 'action@github.com'
         git add openai_models.json
-        git commit -m "Auto-update: Found new OpenAI models"
         
-        # Try to push changes
-        if git push; then
-          echo "✅ Successfully pushed changes to the repository!"
+        # Only proceed if there are actually staged changes
+        if [ -n "$(git diff --cached --name-only)" ]; then
+          git commit -m "Auto-update: Found new OpenAI models"
+          
+          # Try to push changes
+          if git push; then
+            echo "✅ Successfully pushed changes to the repository!"
+          else
+            echo "❌ Failed to push changes. Check if the workflow has proper permissions."
+            echo "   You can set them in Settings -> Actions -> General -> Workflow permissions"
+            exit 1
+          fi
         else
-          echo "❌ Failed to push changes. Check if the workflow has proper permissions."
-          echo "   You can set them in Settings -> Actions -> General -> Workflow permissions"
-          exit 1
+          echo "⚠️ No changes to openai_models.json were staged for commit. Skipping commit and push."
         fi
     
     - name: No changes
