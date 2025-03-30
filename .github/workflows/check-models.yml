@@ -46,6 +46,9 @@ jobs:
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
+        # Enable command echoing for debugging
+        set -e
+        
         # Verify API key
         if [ -z "$OPENAI_API_KEY" ]; then
           echo "❌ ERROR: OPENAI_API_KEY is not set in repository secrets"
@@ -53,12 +56,32 @@ jobs:
         fi
         echo "✅ API key is properly set"
         
-        # Run the update command to find and add new models
-        echo "Running update command to find and add new models"
-        poetry run openai_model_tracker update --verbose
+        # Verify poetry is installed correctly
+        echo "Checking poetry installation..."
+        poetry --version
         
-        # Check if there are changes to commit
-        if [ -n "$(git status --porcelain)" ]; then
+        # Run the update command with error handling
+        echo "Running update command to find and add new models"
+        UPDATE_OUTPUT=$(poetry run openai_model_tracker update --verbose 2>&1) || {
+          echo "❌ ERROR: Command failed with exit code $?"
+          echo "Command output:"
+          echo "$UPDATE_OUTPUT"
+          exit 1
+        }
+        
+        # Print the output for diagnostic purposes
+        echo "Command output:"
+        echo "$UPDATE_OUTPUT"
+        
+        # Check if there are changes to commit (using explicit git command)
+        echo "Checking for changes in repository..."
+        GIT_STATUS=$(git status --porcelain)
+        
+        # Debug output
+        echo "Git status output:"
+        echo "$GIT_STATUS"
+        
+        if [ -n "$GIT_STATUS" ]; then
           echo "Changes detected in the models file, committing and pushing..."
           git config --global user.name 'GitHub Action'
           git config --global user.email 'action@github.com'
