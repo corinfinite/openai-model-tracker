@@ -71,7 +71,8 @@ def load_config(
             with open(config_path, "r") as f:
                 result: Dict[str, List[Dict[str, Any]]] = json.load(f)
                 log_verbose(
-                    f"Loaded {len(result.get('models', []))} models from config", verbose
+                    f"Loaded {len(result.get('models', []))} models from config",
+                    verbose,
                 )
                 return result
         except json.JSONDecodeError as e:
