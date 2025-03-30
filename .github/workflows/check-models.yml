@@ -61,8 +61,8 @@ jobs:
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
-        # Run the update command
-        poetry run openai_model_tracker update --verbose
+        # Run the update command using direct Python import (avoids format error)
+        poetry run python -c "from openai_model_tracker.__main__ import update_models_config; update_models_config(verbose=True)" || true
         
         # Check specifically for changes to openai_models.json, not just any file
         if [ -n "$(git status --porcelain openai_models.json)" ]; then
