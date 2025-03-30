@@ -45,9 +45,10 @@ jobs:
     - name: Check for new models and commit changes
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        PYTHONUNBUFFERED: "1"
       run: |
         # Enable command echoing for debugging
-        set -e
+        set -x
         
         # Verify API key
         if [ -z "$OPENAI_API_KEY" ]; then
@@ -60,26 +61,34 @@ jobs:
         echo "Checking poetry installation..."
         poetry --version
         
-        # Run the update command with error handling
-        echo "Running update command to find and add new models"
-        UPDATE_OUTPUT=$(poetry run openai_model_tracker update --verbose 2>&1) || {
-          echo "❌ ERROR: Command failed with exit code $?"
-          echo "Command output:"
-          echo "$UPDATE_OUTPUT"
-          exit 1
-        }
+        # Check installed packages
+        echo "Checking installed packages..."
+        poetry show
         
-        # Print the output for diagnostic purposes
-        echo "Command output:"
-        echo "$UPDATE_OUTPUT"
+        # Check if we can run simple Python commands
+        echo "Running a simple Python command..."
+        poetry run python -c "print('Hello from Python')"
+        
+        # Try to import required libraries
+        echo "Testing imports..."
+        poetry run python -c "import requests; import tabulate; import dotenv; print('All imports work')"
+        
+        # Try running the list command which is simpler
+        echo "Trying to run the list command first..."
+        poetry run openai_model_tracker list
+        
+        # Try running with Python -m to see if there's a difference
+        echo "Running with python -m..."
+        poetry run python -m openai_model_tracker update --verbose
+        
+        # Run the update command as before
+        echo "Running update command with explicit python -c..."
+        poetry run python -c "from openai_model_tracker.__main__ import main; main()" update --verbose
         
         # Check if there are changes to commit (using explicit git command)
         echo "Checking for changes in repository..."
         GIT_STATUS=$(git status --porcelain)
-        
-        # Debug output
-        echo "Git status output:"
-        echo "$GIT_STATUS"
+        echo "Git status output: $GIT_STATUS"
         
         if [ -n "$GIT_STATUS" ]; then
           echo "Changes detected in the models file, committing and pushing..."
