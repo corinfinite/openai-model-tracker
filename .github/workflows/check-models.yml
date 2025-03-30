@@ -106,8 +106,31 @@ jobs:
         # Add diagnostic output without exposing the key
         echo "API key status: ${#OPENAI_API_KEY} characters long"
         
-        # Normal operation for scheduled/manual runs
-        poetry run openai_model_tracker update --verbose
+        # Check API key format
+        if [[ ! "$OPENAI_API_KEY" =~ ^sk- ]]; then
+          echo "⚠️ Warning: The API key does not start with 'sk-' which is required by OpenAI"
+          echo "Please check the format of your API key in repository secrets"
+        fi
+        
+        # Normal operation for scheduled/manual runs with better error handling
+        echo "----------- Running command with full error output -----------"
+        if ! poetry run python -c "import traceback; from openai_model_tracker.__main__ import update_models_config; update_models_config(verbose=True)"; then
+          echo "❌ Command failed with error. Showing detailed diagnostic information:"
+          echo "Python path: $(which python)"
+          echo "Poetry version: $(poetry --version)"
+          echo "Package installation:"
+          poetry show
+          echo "Contents of config file:"
+          if [ -f "openai_models.json" ]; then
+            cat openai_models.json | head -n 5
+            echo "... (truncated for brevity)"
+          else
+            echo "Config file not found!"
+          fi
+          echo "Testing basic API connectivity:"
+          poetry run python -c "import requests; print(requests.get('https://api.openai.com/v1/models', headers={'Authorization': f'Bearer {import os; print(os.environ[\"OPENAI_API_KEY\"][0:3] + \"***\")}'}, timeout=5).status_code)"
+          exit 1
+        fi
         
         # Store git status for the next step
         if [ -n "$(git status --porcelain)" ]; then
