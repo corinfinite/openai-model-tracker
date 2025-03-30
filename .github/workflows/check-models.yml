@@ -10,8 +10,15 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    # Add permissions for GitHub Actions
+    permissions:
+      contents: write
+    
     steps:
     - uses: actions/checkout@v3
+      with:
+        # Make sure we have full git history for proper push
+        fetch-depth: 0
     
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -39,26 +46,51 @@ jobs:
         poetry lock
         # Install dependencies
         poetry install
-      
-    - name: Check for new models
+    
+    - name: Verify API key
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
-        # Run the tool to check for new models (exit code 1 if new models found)
-        # Use || true to prevent workflow failure if exit code is 1
-        poetry run openai_model_tracker || echo "New models detected!"
-        
-        # Explicitly run the update command to add new models to config
-        poetry run openai_model_tracker update
-        
-        # If there are changes to the JSON file, commit them
-        if [ -n "$(git status --porcelain)" ]; then
-          git config --global user.name 'GitHub Action'
-          git config --global user.email 'action@github.com'
-          git add openai_models.json
-          git commit -m "Auto-update: Found new OpenAI models"
-          git push
-          echo "Updated openai_models.json with new models!"
-        else
-          echo "No new models found."
+        if [ -z "$OPENAI_API_KEY" ]; then
+          echo "❌ ERROR: OPENAI_API_KEY is not set in repository secrets"
+          exit 1
         fi
+        echo "✅ API key is properly set"
+      
+    - name: Check and update models
+      id: check_models
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      run: |
+        echo "Running update command to find and add new models"
+        poetry run openai_model_tracker update --verbose
+        
+        # Store git status for the next step
+        if [ -n "$(git status --porcelain)" ]; then
+          echo "changes_detected=true" >> $GITHUB_OUTPUT
+        else
+          echo "changes_detected=false" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Commit and push changes
+      if: steps.check_models.outputs.changes_detected == 'true'
+      run: |
+        echo "Changes detected in the models file, committing and pushing..."
+        git config --global user.name 'GitHub Action'
+        git config --global user.email 'action@github.com'
+        git add openai_models.json
+        git commit -m "Auto-update: Found new OpenAI models"
+        
+        # Try to push changes
+        if git push; then
+          echo "✅ Successfully pushed changes to the repository!"
+        else
+          echo "❌ Failed to push changes. Check if the workflow has proper permissions."
+          echo "   You can set them in Settings -> Actions -> General -> Workflow permissions"
+          exit 1
+        fi
+    
+    - name: No changes
+      if: steps.check_models.outputs.changes_detected == 'false'
+      run: |
+        echo "No new models found, no changes to commit."
