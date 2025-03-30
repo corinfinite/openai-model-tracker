@@ -10,14 +10,13 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
-    # Add permissions for GitHub Actions
     permissions:
       contents: write
     
     steps:
     - uses: actions/checkout@v3
       with:
-        # Make sure we have full git history for proper push
+        # Full history needed for proper push
         fetch-depth: 0
     
     - name: Set up Python
@@ -40,11 +39,9 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-poetry-
         
-    - name: Update lock file and install dependencies
+    - name: Install dependencies
       run: |
-        # Update the lock file to match pyproject.toml changes
         poetry lock
-        # Install dependencies
         poetry install
     
     - name: Verify API key
@@ -55,18 +52,17 @@ jobs:
           echo "❌ ERROR: OPENAI_API_KEY is not set in repository secrets"
           exit 1
         fi
-        echo "✅ API key is properly set"
       
-    - name: Check and update models
+    - name: Check for new models
       id: check_models
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
-        echo "Running update command to find and add new models"
+        # Run OpenAI model update
         poetry run openai_model_tracker update --verbose
         
-        # Store git status for the next step
-        if [ -n "$(git status --porcelain)" ]; then
+        # Check specifically for changes to openai_models.json, not any file
+        if [ -n "$(git status --porcelain openai_models.json)" ]; then
           echo "changes_detected=true" >> $GITHUB_OUTPUT
         else
           echo "changes_detected=false" >> $GITHUB_OUTPUT
@@ -75,19 +71,14 @@ jobs:
     - name: Commit and push changes
       if: steps.check_models.outputs.changes_detected == 'true'
       run: |
-        echo "Changes detected in the models file, committing and pushing..."
         git config --global user.name 'GitHub Action'
         git config --global user.email 'action@github.com'
         git add openai_models.json
-        git commit -m "Auto-update: Found new OpenAI models"
         
-        # Try to push changes
-        if git push; then
-          echo "✅ Successfully pushed changes to the repository!"
-        else
-          echo "❌ Failed to push changes. Check if the workflow has proper permissions."
-          echo "   You can set them in Settings -> Actions -> General -> Workflow permissions"
-          exit 1
+        # Only proceed if there are actually staged changes
+        if [ -n "$(git diff --cached --name-only)" ]; then
+          git commit -m "Auto-update: Found new OpenAI models"
+          git push
         fi
     
     - name: No changes
