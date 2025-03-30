@@ -32,24 +32,26 @@ def get_openai_models() -> Dict[str, Any]:
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
         raise ValueError("OPENAI_API_KEY environment variable is not set or empty")
-    
+
     if api_key.startswith("sk-") is False:
-        raise ValueError("OPENAI_API_KEY appears to be invalid (should start with 'sk-')")
+        raise ValueError(
+            "OPENAI_API_KEY appears to be invalid (should start with 'sk-')"
+        )
 
     log_verbose(f"Sending request to OpenAI API")
     headers = {"Authorization": f"Bearer {api_key}"}
 
     try:
         response = requests.get(
-            "https://api.openai.com/v1/models", 
+            "https://api.openai.com/v1/models",
             headers=headers,
-            timeout=30  # Add timeout for API request
+            timeout=30,  # Add timeout for API request
         )
         response.raise_for_status()  # Raise exception for non-200 responses
     except requests.exceptions.RequestException as e:
         # Enhanced error reporting
         error_message = f"Error accessing OpenAI API: {str(e)}"
-        if hasattr(e, 'response') and e.response is not None:
+        if hasattr(e, "response") and e.response is not None:
             error_message += f"\nStatus code: {e.response.status_code}"
             try:
                 error_message += f"\nResponse: {e.response.text}"
@@ -68,13 +70,15 @@ def load_config(config_path: str = CONFIG_PATH) -> Dict[str, List[Dict[str, Any]
         try:
             with open(config_path, "r") as f:
                 result: Dict[str, List[Dict[str, Any]]] = json.load(f)
-                log_verbose(f"Loaded {len(result.get('models', []))} models from config")
+                log_verbose(
+                    f"Loaded {len(result.get('models', []))} models from config"
+                )
                 return result
         except json.JSONDecodeError as e:
             raise Exception(f"Invalid JSON in config file: {str(e)}")
         except Exception as e:
             raise Exception(f"Error loading config file: {str(e)}")
-    
+
     log_verbose(f"Config file not found, creating empty config")
     return {"models": []}
 
@@ -140,17 +144,17 @@ def check_for_new_models() -> Tuple[List[Dict[str, Any]], bool]:
     except Exception as e:
         error_message = f"Error checking for new models: {str(e)}"
         print(error_message)
-        
+
         if VERBOSE:
             print("\nDetailed error information:")
             traceback.print_exc()
-        
+
         return [], True
 
 
 def update_models_config() -> bool:
     """Check for new models and update the config file.
-    
+
     Returns:
         bool: True if updates were made, False otherwise
     """
@@ -158,7 +162,9 @@ def update_models_config() -> bool:
         new_models, error = check_for_new_models()
 
         if error:
-            print("Error occurred during check for new models. Cannot proceed with update.")
+            print(
+                "Error occurred during check for new models. Cannot proceed with update."
+            )
             return False
 
         if not new_models:
@@ -178,11 +184,11 @@ def update_models_config() -> bool:
 
     except Exception as e:
         print(f"Error updating models: {str(e)}")
-        
+
         if VERBOSE:
             print("\nDetailed error information:")
             traceback.print_exc()
-            
+
         return False
 
 
@@ -212,7 +218,7 @@ def print_models_table() -> None:
 
     except Exception as e:
         print(f"Error printing models table: {str(e)}")
-        
+
         if VERBOSE:
             print("\nDetailed error information:")
             traceback.print_exc()
@@ -235,15 +241,15 @@ def main() -> None:
                 new_models, error = check_for_new_models()
                 if error:
                     sys.exit(2)  # Exit with code 2 for API errors
-                
+
                 if new_models:
                     # Load config again to ensure we have the latest
                     config = load_config()
-                    
+
                     # Add new models to config
                     for model in new_models:
                         config["models"].append(model)
-                    
+
                     # Save updated config
                     save_config(config)
                     print(f"Added {len(new_models)} new models to the config file.")
