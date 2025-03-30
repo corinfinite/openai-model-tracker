@@ -6,6 +6,13 @@ on:
     - cron: '0 0 * * *'
   # Allow manual trigger
   workflow_dispatch:
+  # Add PR trigger for testing
+  pull_request:
+    paths:
+      - '.github/workflows/check-models.yml'
+      - 'openai_model_tracker/**'
+      - 'pyproject.toml'
+      - 'poetry.lock'
 
 jobs:
   check:
@@ -13,6 +20,10 @@ jobs:
     # Add permissions for GitHub Actions
     permissions:
       contents: write
+      id-token: write # Add explicit ID token permission for better secret handling
+    
+    # The repository environment where secrets are stored
+    environment: production
     
     steps:
     - uses: actions/checkout@v3
@@ -47,15 +58,30 @@ jobs:
         # Install dependencies
         poetry install
     
+    - name: Check workflow context
+      run: |
+        echo "Workflow triggered by: ${{ github.event_name }}"
+        echo "Repository: ${{ github.repository }}"
+        echo "Actor: ${{ github.actor }}"
+        echo "Checking for secret availability..."
+    
     - name: Verify API key
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
+        # Check if API key exists but don't print it
         if [ -z "$OPENAI_API_KEY" ]; then
           echo "❌ ERROR: OPENAI_API_KEY is not set in repository secrets"
+          echo "Please check the following:"
+          echo "1. The OPENAI_API_KEY secret is properly configured in repository settings"
+          echo "2. The workflow has permission to access the secret (Settings -> Actions -> General -> Workflow permissions)"
+          echo "3. If using environments, ensure the environment is correctly configured"
+          # Diagnostic information without exposing secrets
+          echo "Secret length check: ${#OPENAI_API_KEY} characters"
+          echo "Hint: GitHub masks secrets with '***' in logs when they're properly accessed"
           exit 1
         fi
-        echo "✅ API key is properly set"
+        echo "✅ API key is properly set (${#OPENAI_API_KEY} characters)"
       
     - name: Check and update models
       id: check_models
@@ -63,6 +89,23 @@ jobs:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
         echo "Running update command to find and add new models"
+        # Add diagnostic output without exposing the key
+        echo "API key status: ${#OPENAI_API_KEY} characters long"
+        
+        # Skip actual update if triggered by PR
+        if [ "${{ github.event_name }}" == "pull_request" ]; then
+          echo "Running in PR mode - testing API access only, not updating models"
+          # Just verify we can run the command with the key
+          if ! poetry run openai_model_tracker list; then
+            echo "❌ Error running the command with the API key"
+            exit 1
+          fi
+          echo "✅ Command ran successfully with API key"
+          echo "changes_detected=false" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+        
+        # Normal operation for scheduled/manual runs
         poetry run openai_model_tracker update --verbose
         
         # Store git status for the next step
@@ -73,7 +116,7 @@ jobs:
         fi
     
     - name: Commit and push changes
-      if: steps.check_models.outputs.changes_detected == 'true'
+      if: steps.check_models.outputs.changes_detected == 'true' && github.event_name != 'pull_request'
       run: |
         echo "Changes detected in the models file, committing and pushing..."
         git config --global user.name 'GitHub Action'
