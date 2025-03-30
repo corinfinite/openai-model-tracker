@@ -61,8 +61,8 @@ jobs:
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
-        # Run the update command (continue even if it has non-zero exit)
-        poetry run openai_model_tracker update --verbose || true
+        # Run the update command - should fail workflow if there's a real error
+        poetry run openai_model_tracker update --verbose
         
         # Check specifically for changes to openai_models.json, not just any file
         if [ -n "$(git status --porcelain openai_models.json)" ]; then
