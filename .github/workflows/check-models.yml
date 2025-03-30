@@ -6,13 +6,6 @@ on:
     - cron: '0 0 * * *'
   # Allow manual trigger
   workflow_dispatch:
-  # Add PR trigger for testing
-  pull_request:
-    paths:
-      - '.github/workflows/check-models.yml'
-      - 'openai_model_tracker/**'
-      - 'pyproject.toml'
-      - 'poetry.lock'
 
 jobs:
   check:
@@ -20,7 +13,6 @@ jobs:
     # Add permissions for GitHub Actions
     permissions:
       contents: write
-      id-token: write # Add explicit ID token permission for better secret handling
     
     steps:
     - uses: actions/checkout@v3
@@ -55,102 +47,33 @@ jobs:
         # Install dependencies
         poetry install
     
-    - name: Check workflow context
-      run: |
-        echo "Workflow triggered by: ${{ github.event_name }}"
-        echo "Repository: ${{ github.repository }}"
-        echo "Actor: ${{ github.actor }}"
-        echo "Workflow permissions: ${{ toJson(github.token) != '' }}"
-        echo "Checking for secret availability..."
-    
-    # Special handling for PR events (which can't access secrets for security reasons)
-    - name: Handle PR workflow (without secrets)
-      if: github.event_name == 'pull_request'
-      run: |
-        echo "🔍 Running workflow in PR mode"
-        echo "⚠️ NOTE: GitHub Actions does not pass secrets to workflows triggered by pull requests for security reasons."
-        echo "This is normal behavior to prevent potential secret exfiltration from forks."
-        echo ""
-        echo "✅ Your workflow changes look good structurally. After merging, the workflow will be able to access secrets"
-        echo "when run via schedule or manual trigger."
-        echo ""
-        echo "The actual GitHub Actions workflow will succeed in the real run after merging, as it will have proper"
-        echo "access to the OPENAI_API_KEY secret (PR runs intentionally don't receive secrets)."
-    
-    # Only run for non-PR events (schedule, workflow_dispatch)
     - name: Verify API key
-      if: github.event_name != 'pull_request'
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
-        # Check if API key exists but don't print it
         if [ -z "$OPENAI_API_KEY" ]; then
           echo "❌ ERROR: OPENAI_API_KEY is not set in repository secrets"
-          echo "Please check the following:"
-          echo "1. The OPENAI_API_KEY secret is properly configured in repository settings"
-          echo "2. The workflow has permission to access the secret (Settings -> Actions -> General -> Workflow permissions)"
-          # Diagnostic information without exposing secrets
-          echo "Secret length check: ${#OPENAI_API_KEY} characters"
-          echo "Hint: GitHub masks secrets with '***' in logs when they're properly accessed"
           exit 1
         fi
-        echo "✅ API key is properly set (${#OPENAI_API_KEY} characters)"
       
     - name: Check and update models
       id: check_models
-      if: github.event_name != 'pull_request'
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
-        echo "Running update command to find and add new models"
-        # Add diagnostic output without exposing the key
-        echo "API key status: ${#OPENAI_API_KEY} characters long"
-        
-        # Check API key format
-        if [[ ! "$OPENAI_API_KEY" =~ ^sk- ]]; then
-          echo "⚠️ Warning: The API key does not start with 'sk-' which is required by OpenAI"
-          echo "Please check the format of your API key in repository secrets"
-        fi
-        
-        # Normal operation for scheduled/manual runs with better error handling
-        echo "----------- Running command with full error output -----------"
-        if ! poetry run python -c "import traceback; from openai_model_tracker.__main__ import update_models_config; update_models_config(verbose=True)"; then
-          echo "❌ Command failed with error. Showing detailed diagnostic information:"
-          echo "Python path: $(which python)"
-          echo "Poetry version: $(poetry --version)"
-          echo "Package installation:"
-          poetry show
-          echo "Contents of config file:"
-          if [ -f "openai_models.json" ]; then
-            cat openai_models.json | head -n 5
-            echo "... (truncated for brevity)"
-          else
-            echo "Config file not found!"
-          fi
-          echo "Testing basic API connectivity:"
-          poetry run python -c "import requests; print(requests.get('https://api.openai.com/v1/models', headers={'Authorization': f'Bearer {import os; print(os.environ[\"OPENAI_API_KEY\"][0:3] + \"***\")}'}, timeout=5).status_code)"
-          exit 1
-        fi
+        # Run the update command
+        poetry run openai_model_tracker update --verbose
         
         # Check specifically for changes to openai_models.json, not just any file
         if [ -n "$(git status --porcelain openai_models.json)" ]; then
-          echo "✅ Changes detected in openai_models.json"
           echo "changes_detected=true" >> $GITHUB_OUTPUT
         else
-          echo "No changes to openai_models.json detected"
           echo "changes_detected=false" >> $GITHUB_OUTPUT
-          
-          # Diagnostic information about other changed files
-          if [ -n "$(git status --porcelain)" ]; then
-            echo "Note: Other files were modified but not openai_models.json:"
-            git status --porcelain
-          fi
         fi
     
     - name: Commit and push changes
-      if: steps.check_models.outputs.changes_detected == 'true' && github.event_name != 'pull_request'
+      if: steps.check_models.outputs.changes_detected == 'true'
       run: |
-        echo "Changes detected in the models file, committing and pushing..."
         git config --global user.name 'GitHub Action'
         git config --global user.email 'action@github.com'
         git add openai_models.json
@@ -158,17 +81,7 @@ jobs:
         # Only proceed if there are actually staged changes
         if [ -n "$(git diff --cached --name-only)" ]; then
           git commit -m "Auto-update: Found new OpenAI models"
-          
-          # Try to push changes
-          if git push; then
-            echo "✅ Successfully pushed changes to the repository!"
-          else
-            echo "❌ Failed to push changes. Check if the workflow has proper permissions."
-            echo "   You can set them in Settings -> Actions -> General -> Workflow permissions"
-            exit 1
-          fi
-        else
-          echo "⚠️ No changes to openai_models.json were staged for commit. Skipping commit and push."
+          git push
         fi
     
     - name: No changes
