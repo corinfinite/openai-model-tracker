@@ -84,28 +84,10 @@ jobs:
         
         # Try to run the list command with a try/except to capture the exact error
         echo "Running list command with error capture:"
-        poetry run python -c "
-import sys, traceback
-try:
-    from openai_model_tracker.__main__ import print_models_table
-    print_models_table(verbose=True)
-except Exception as e:
-    print(f'ERROR: {str(e)}', file=sys.stderr)
-    traceback.print_exc()
-    sys.exit(1)
-"
+        poetry run python -c $'import sys, traceback\ntry:\n    from openai_model_tracker.__main__ import print_models_table\n    print_models_table(verbose=True)\nexcept Exception as e:\n    print(f"ERROR: {str(e)}", file=sys.stderr)\n    traceback.print_exc()\n    sys.exit(1)'
         
         echo "Testing tabulate directly with sample data:"
-        poetry run python -c "
-import tabulate
-try:
-    data = [['Model1', '2023-01-01'], ['Model2', '2023-01-02']]
-    headers = ['Model ID', 'Created Date']
-    print(tabulate.tabulate(data, headers=headers, tablefmt='grid'))
-    print('Tabulate works with test data')
-except Exception as e:
-    print(f'ERROR when using tabulate: {str(e)}')
-"
+        poetry run python -c $'import tabulate\ntry:\n    data = [["Model1", "2023-01-01"], ["Model2", "2023-01-02"]]\n    headers = ["Model ID", "Created Date"]\n    print(tabulate.tabulate(data, headers=headers, tablefmt="grid"))\n    print("Tabulate works with test data")\nexcept Exception as e:\n    print(f"ERROR when using tabulate: {str(e)}")'
         
         # Check specifically for changes to openai_models.json, not just any file
         if [ -n "$(git status --porcelain openai_models.json)" ]; then
