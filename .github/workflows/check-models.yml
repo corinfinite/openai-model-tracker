@@ -61,10 +61,9 @@ jobs:
       id: check_models
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        OPENAI_MODEL_TRACKER_VERBOSE: "true"
       run: |
-        echo "Running check-and-update command to find and add new models in a single operation"
-        poetry run openai_model_tracker check-and-update
+        echo "Running update command to find and add new models"
+        poetry run openai_model_tracker update --verbose
         
         # Store git status for the next step
         if [ -n "$(git status --porcelain)" ]; then
