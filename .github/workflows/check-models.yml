@@ -61,8 +61,39 @@ jobs:
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
-        # Run the update command - should fail workflow if there's a real error
-        poetry run openai_model_tracker update --verbose
+        # Add diagnostic logging to trace the 'format' error
+        echo "Checking API key format:"
+        if [[ ! "$OPENAI_API_KEY" =~ ^sk- ]]; then
+          echo "WARNING: API key doesn't start with 'sk-' which is required by OpenAI"
+        else
+          echo "API key format appears correct (starts with sk-)"
+        fi
+        
+        # Check for Python/dependencies issues
+        echo "Python version: $(python --version)"
+        echo "Poetry version: $(poetry --version)"
+        echo "Running list command first to check for basic functionality:"
+        if poetry run openai_model_tracker list; then
+          echo "List command successful"
+        else
+          echo "List command failed, indicating a potential issue with the code or dependencies"
+        fi
+        
+        # Check if the config file exists and is valid JSON
+        echo "Checking config file:"
+        if [ -f "openai_models.json" ]; then
+          if python -c "import json; json.load(open('openai_models.json'))"; then
+            echo "Config file exists and is valid JSON"
+          else
+            echo "WARNING: Config file exists but is not valid JSON"
+          fi
+        else
+          echo "Config file doesn't exist yet"
+        fi
+        
+        echo "Running update command with extra debugging:"
+        # Try to run with exception details
+        poetry run python -c "import traceback; import sys; from openai_model_tracker.__main__ import update_models_config; try: update_models_config(verbose=True); except Exception as e: print(f'ERROR: {str(e)}', file=sys.stderr); traceback.print_exc(); sys.exit(1)"
         
         # Check specifically for changes to openai_models.json, not just any file
         if [ -n "$(git status --porcelain openai_models.json)" ]; then
