@@ -10,14 +10,13 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
-    # Add permissions for GitHub Actions
     permissions:
       contents: write
     
     steps:
     - uses: actions/checkout@v3
       with:
-        # Make sure we have full git history for proper push
+        # Full history needed for proper push
         fetch-depth: 0
     
     - name: Set up Python
@@ -40,11 +39,9 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-poetry-
         
-    - name: Update lock file and install dependencies
+    - name: Install dependencies
       run: |
-        # Update the lock file to match pyproject.toml changes
         poetry lock
-        # Install dependencies
         poetry install
     
     - name: Verify API key
@@ -56,40 +53,15 @@ jobs:
           exit 1
         fi
       
-    - name: Check and update models
+    - name: Check for new models
       id: check_models
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
-        # Add diagnostic logging to trace the 'format' error
-        echo "Checking API key format:"
-        if [[ ! "$OPENAI_API_KEY" =~ ^sk- ]]; then
-          echo "WARNING: API key doesn't start with 'sk-' which is required by OpenAI"
-        else
-          echo "API key format appears correct (starts with sk-)"
-        fi
+        # Run OpenAI model update
+        poetry run openai_model_tracker update --verbose
         
-        # Check for Python/dependencies issues
-        echo "Python version: $(python --version)"
-        echo "Poetry version: $(poetry --version)"
-        
-        # Test tabulate module directly (likely source of 'format' error)
-        echo "Testing tabulate module (key suspect for 'format' error):"
-        poetry run python -c "import tabulate; print(f'Tabulate version: {tabulate.__version__}')" || echo "Failed to import tabulate module"
-        poetry run python -c "import sys; print(f'Python path: {sys.path}')" || echo "Failed to print Python path"
-        
-        # Test minimal version of code that might trigger the error
-        echo "Testing minimal code execution:"
-        poetry run python -c "from openai_model_tracker.__main__ import print_models_table; print('Function imported successfully')" || echo "Failed to import function"
-        
-        # Try to run the list command with a try/except to capture the exact error
-        echo "Running list command with error capture:"
-        poetry run python -c $'import sys, traceback\ntry:\n    from openai_model_tracker.__main__ import print_models_table\n    print_models_table(verbose=True)\nexcept Exception as e:\n    print(f"ERROR: {str(e)}", file=sys.stderr)\n    traceback.print_exc()\n    sys.exit(1)'
-        
-        echo "Testing tabulate directly with sample data:"
-        poetry run python -c $'import tabulate\ntry:\n    data = [["Model1", "2023-01-01"], ["Model2", "2023-01-02"]]\n    headers = ["Model ID", "Created Date"]\n    print(tabulate.tabulate(data, headers=headers, tablefmt="grid"))\n    print("Tabulate works with test data")\nexcept Exception as e:\n    print(f"ERROR when using tabulate: {str(e)}")'
-        
-        # Check specifically for changes to openai_models.json, not just any file
+        # Check specifically for changes to openai_models.json, not any file
         if [ -n "$(git status --porcelain openai_models.json)" ]; then
           echo "changes_detected=true" >> $GITHUB_OUTPUT
         else
