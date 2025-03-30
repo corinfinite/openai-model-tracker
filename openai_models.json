@@ -215,6 +215,42 @@
     {
       "id": "gpt-4.5-preview-2025-02-27",
       "api_created": 1740623304
+    },
+    {
+      "id": "gpt-4o-search-preview-2025-03-11",
+      "api_created": 1741388170
+    },
+    {
+      "id": "gpt-4o-search-preview",
+      "api_created": 1741388720
+    },
+    {
+      "id": "gpt-4o-mini-search-preview-2025-03-11",
+      "api_created": 1741390858
+    },
+    {
+      "id": "gpt-4o-mini-search-preview",
+      "api_created": 1741391161
+    },
+    {
+      "id": "gpt-4o-transcribe",
+      "api_created": 1742068463
+    },
+    {
+      "id": "gpt-4o-mini-transcribe",
+      "api_created": 1742068596
+    },
+    {
+      "id": "o1-pro-2025-03-19",
+      "api_created": 1742251504
+    },
+    {
+      "id": "o1-pro",
+      "api_created": 1742251791
+    },
+    {
+      "id": "gpt-4o-mini-tts",
+      "api_created": 1742403959
     }
   ]
 }
