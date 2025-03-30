@@ -1,0 +1,54 @@
+name: Python CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      if: github.event_name == 'pull_request'
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
+        
+    - uses: actions/checkout@v3
+      if: github.event_name != 'pull_request'
+        
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: 2.0.0
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+    
+    - name: Cache Poetry dependencies
+      uses: actions/cache@v3
+      with:
+        path: .venv
+        key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-poetry-
+        
+    - name: Update lock file and install dependencies
+      run: |
+        # Update the lock file to match pyproject.toml changes
+        poetry lock
+        # Install dependencies
+        poetry install --with dev
+      
+    # Check formatting with Black
+    - name: Check formatting with Black
+      run: poetry run black --check "openai_model_tracker/"
+      
+    # Run MyPy for strict type checking
+    - name: Type check with MyPy
+      run: poetry run mypy "openai_model_tracker/"

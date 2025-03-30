@@ -1,11 +1,11 @@
 [tool.poetry]
-name = "openai-model-tracker"
+name = "openai_model_tracker"
 version = "0.1.0"
 description = ""
 authors = ["Author Name <author@example.com>"]
 readme = "README.md"
 packages = [
-  { include = "openai-model-tracker" }
+  { include = "openai_model_tracker" }
 ]
 
 [tool.poetry.dependencies]
@@ -17,11 +17,14 @@ tabulate = "^0.9.0"
 [tool.poetry.group.dev.dependencies]
 black = "^23.3.0"
 mypy = "^1.11.0"
+types-requests = "^2.31.0"
+types-tabulate = "^0.9.0"
 
 [tool.poetry.scripts]
-openai-model-tracker = "openai-model-tracker.__main__:main"
+openai_model_tracker = "openai_model_tracker.__main__:main"
 
 [tool.black]
+line-length = 88
 
 [tool.mypy]
 strict = true
