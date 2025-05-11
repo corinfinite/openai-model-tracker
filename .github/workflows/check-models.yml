@@ -1,4 +1,4 @@
-name: Check for New OpenAI Models
+name: Check for new OpenAI models
 
 on:
   schedule:
@@ -10,7 +10,6 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
-    # Add permissions for GitHub Actions
     permissions:
       contents: write
     
