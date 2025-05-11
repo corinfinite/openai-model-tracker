@@ -270,7 +270,9 @@ def main() -> None:
         if new_models:
             sys.exit(1)
     else:
-        assert False, f"Unexpected command '{args.command}' reached execution. This should be handled by argparse."
+        assert (
+            False
+        ), f"Unexpected command '{args.command}' reached execution. This should be handled by argparse."
 
 
 if __name__ == "__main__":
