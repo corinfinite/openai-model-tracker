@@ -3,7 +3,7 @@
 [![Python CI](https://github.com/corinfinite/openai_model_tracker/actions/workflows/python-ci.yml/badge.svg)](https://github.com/corinfinite/openai_model_tracker/actions/workflows/python-ci.yml)
 [![Check for New OpenAI Models](https://github.com/corinfinite/openai_model_tracker/actions/workflows/check-models.yml/badge.svg)](https://github.com/corinfinite/openai_model_tracker/actions/workflows/check-models.yml)
 
-A tool to track and monitor new OpenAI models as they become available.
+A tool to track and monitor new OpenAI models as they become available on the API.
 
 ## Getting Started
 
