@@ -63,7 +63,7 @@ jobs:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
         echo "Running update command to find and add new models"
-        poetry run openai_model_tracker --verbose update
+        poetry -vvv run openai_model_tracker --verbose update
         
         # Store git status for the next step
         if [ -n "$(git status --porcelain)" ]; then
