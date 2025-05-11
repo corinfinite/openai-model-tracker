@@ -254,34 +254,38 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     """Main entry point for the application."""
+    args = parse_args()
+
     try:
-        args = parse_args()
         verbose = args.verbose
 
         if args.command == "list":
             print_models_table(verbose)
         elif args.command == "update":
             updated = update_models_config(verbose)
-            # Exit with 0 if updated successfully or no updates needed
-            # Exit with 1 if there was an error updating
-            sys.exit(0 if updated or not updated else 1)
+            # Exit with 0 if updated successfully or no new models were found/added.
+            # Exit with 1 if there was an error during the update process.
+            sys.exit(0 if updated else 1)
         elif args.command is None:
             # Default behavior with no command: check only, don't modify
             new_models, error = check_for_new_models(verbose)
             if error:
-                sys.exit(2)  # Exit with code 2 for API errors
+                sys.exit(2)  # Exit with code 2 for API errors or other check errors
             if new_models:
-                sys.exit(1)  # Exit with code 1 if new models found
-            sys.exit(0)  # Exit with code 0 if no new models found
+                # As per original logic, exit 1 if new models are found (and no update was run)
+                sys.exit(1)
+            sys.exit(0)  # Exit with code 0 if no new models found and no errors
         else:
-            print(f"Unknown command: {args.command}")
-            print("Available commands: list, update")
-            sys.exit(1)
+            assert False, f"Unexpected command '{args.command}' reached execution. This should be handled by argparse."
     except Exception as e:
-        print(f"Unexpected error: {str(e)}")
-        if "args" in locals() and args.verbose:
+        # This block now catches errors from the application logic, post-parsing.
+        print(f"An unexpected error occurred during application execution: {str(e)}")
+        if args.verbose: # args is guaranteed to exist here
+            print("\nVerbose mode detected. Printing traceback for the error:")
             traceback.print_exc()
-        sys.exit(3)  # Exit with code 3 for unexpected errors
+        else:
+            print("\nRun with --verbose for more detailed error information.")
+        sys.exit(3)  # Exit with code 3 for unexpected application errors
 
 
 if __name__ == "__main__":
