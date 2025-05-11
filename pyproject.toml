@@ -5,7 +5,7 @@ description = ""
 authors = ["Author Name <author@example.com>"]
 readme = "README.md"
 packages = [
-  { include = "openai_model_tracker" }
+  { include = "openai_model_tracker", format = ["sdist", "wheel"] }
 ]
 
 [tool.poetry.dependencies]
