@@ -66,7 +66,7 @@ jobs:
         poetry -vvv run openai_model_tracker --verbose update
         
         # Store git status for the next step
-        if [ -n "$(git status --porcelain)" ]; then
+        if [ -n "$(git status --porcelain openai_models.json)" ]; then
           echo "changes_detected=true" >> $GITHUB_OUTPUT
         else
           echo "changes_detected=false" >> $GITHUB_OUTPUT
