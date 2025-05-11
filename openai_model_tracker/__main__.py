@@ -256,36 +256,21 @@ def main() -> None:
     """Main entry point for the application."""
     args = parse_args()
 
-    try:
-        verbose = args.verbose
+    verbose = args.verbose
 
-        if args.command == "list":
-            print_models_table(verbose)
-        elif args.command == "update":
-            updated = update_models_config(verbose)
-            # Exit with 0 if updated successfully or no new models were found/added.
-            # Exit with 1 if there was an error during the update process.
-            sys.exit(0 if updated else 1)
-        elif args.command is None:
-            # Default behavior with no command: check only, don't modify
-            new_models, error = check_for_new_models(verbose)
-            if error:
-                sys.exit(2)  # Exit with code 2 for API errors or other check errors
-            if new_models:
-                # As per original logic, exit 1 if new models are found (and no update was run)
-                sys.exit(1)
-            sys.exit(0)  # Exit with code 0 if no new models found and no errors
-        else:
-            assert False, f"Unexpected command '{args.command}' reached execution. This should be handled by argparse."
-    except Exception as e:
-        # This block now catches errors from the application logic, post-parsing.
-        print(f"An unexpected error occurred during application execution: {str(e)}")
-        if args.verbose: # args is guaranteed to exist here
-            print("\nVerbose mode detected. Printing traceback for the error:")
-            traceback.print_exc()
-        else:
-            print("\nRun with --verbose for more detailed error information.")
-        sys.exit(3)  # Exit with code 3 for unexpected application errors
+    if args.command == "list":
+        print_models_table(verbose)
+    elif args.command == "update":
+        update_models_config(verbose)
+    elif args.command is None:
+        # Default behavior with no command: check only, don't modify
+        new_models, error = check_for_new_models(verbose)
+        if error:
+            sys.exit(2)
+        if new_models:
+            sys.exit(1)
+    else:
+        assert False, f"Unexpected command '{args.command}' reached execution. This should be handled by argparse."
 
 
 if __name__ == "__main__":
