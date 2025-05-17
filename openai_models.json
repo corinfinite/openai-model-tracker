@@ -287,6 +287,10 @@
     {
       "id": "gpt-image-1",
       "api_created": 1745517030
+    },
+    {
+      "id": "codex-mini-latest",
+      "api_created": 1746673257
     }
   ]
 }
