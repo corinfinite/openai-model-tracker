@@ -291,6 +291,14 @@
     {
       "id": "codex-mini-latest",
       "api_created": 1746673257
+    },
+    {
+      "id": "gpt-4o-realtime-preview-2025-06-03",
+      "api_created": 1748907838
+    },
+    {
+      "id": "gpt-4o-audio-preview-2025-06-03",
+      "api_created": 1748908498
     }
   ]
 }
