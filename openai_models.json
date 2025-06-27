@@ -299,6 +299,14 @@
     {
       "id": "gpt-4o-audio-preview-2025-06-03",
       "api_created": 1748908498
+    },
+    {
+      "id": "o4-mini-deep-research",
+      "api_created": 1749685485
+    },
+    {
+      "id": "o4-mini-deep-research-2025-06-26",
+      "api_created": 1750866121
     }
   ]
 }
