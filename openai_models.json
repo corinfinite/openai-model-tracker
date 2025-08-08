@@ -253,8 +253,16 @@
       "api_created": 1742403959
     },
     {
+      "id": "o3-2025-04-16",
+      "api_created": 1744133301
+    },
+    {
       "id": "o4-mini-2025-04-16",
       "api_created": 1744133506
+    },
+    {
+      "id": "o3",
+      "api_created": 1744225308
     },
     {
       "id": "o4-mini",
@@ -307,6 +315,34 @@
     {
       "id": "o4-mini-deep-research-2025-06-26",
       "api_created": 1750866121
+    },
+    {
+      "id": "gpt-5-chat-latest",
+      "api_created": 1754073306
+    },
+    {
+      "id": "gpt-5-2025-08-07",
+      "api_created": 1754075360
+    },
+    {
+      "id": "gpt-5",
+      "api_created": 1754425777
+    },
+    {
+      "id": "gpt-5-mini-2025-08-07",
+      "api_created": 1754425867
+    },
+    {
+      "id": "gpt-5-mini",
+      "api_created": 1754425928
+    },
+    {
+      "id": "gpt-5-nano-2025-08-07",
+      "api_created": 1754426303
+    },
+    {
+      "id": "gpt-5-nano",
+      "api_created": 1754426384
     }
   ]
 }
