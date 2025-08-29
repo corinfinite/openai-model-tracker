@@ -343,6 +343,22 @@
     {
       "id": "gpt-5-nano",
       "api_created": 1754426384
+    },
+    {
+      "id": "gpt-audio-2025-08-28",
+      "api_created": 1756256146
+    },
+    {
+      "id": "gpt-realtime",
+      "api_created": 1756271701
+    },
+    {
+      "id": "gpt-realtime-2025-08-28",
+      "api_created": 1756271773
+    },
+    {
+      "id": "gpt-audio",
+      "api_created": 1756339249
     }
   ]
 }
