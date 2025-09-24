@@ -359,6 +359,10 @@
     {
       "id": "gpt-audio",
       "api_created": 1756339249
+    },
+    {
+      "id": "gpt-5-codex",
+      "api_created": 1757527818
     }
   ]
 }
