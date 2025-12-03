@@ -301,6 +301,10 @@
       "api_created": 1746673257
     },
     {
+      "id": "o3-pro",
+      "api_created": 1748475349
+    },
+    {
       "id": "gpt-4o-realtime-preview-2025-06-03",
       "api_created": 1748907838
     },
@@ -309,12 +313,24 @@
       "api_created": 1748908498
     },
     {
+      "id": "o3-pro-2025-06-10",
+      "api_created": 1749166761
+    },
+    {
       "id": "o4-mini-deep-research",
       "api_created": 1749685485
     },
     {
+      "id": "o3-deep-research",
+      "api_created": 1749840121
+    },
+    {
       "id": "gpt-4o-transcribe-diarize",
       "api_created": 1750798887
+    },
+    {
+      "id": "o3-deep-research-2025-06-26",
+      "api_created": 1750865219
     },
     {
       "id": "o4-mini-deep-research-2025-06-26",
