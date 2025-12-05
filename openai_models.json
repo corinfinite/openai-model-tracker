@@ -447,6 +447,10 @@
     {
       "id": "gpt-5.1-codex-mini",
       "api_created": 1763007109
+    },
+    {
+      "id": "gpt-5.1-codex-max",
+      "api_created": 1763671532
     }
   ]
 }
