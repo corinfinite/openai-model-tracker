@@ -451,6 +451,26 @@
     {
       "id": "gpt-5.1-codex-max",
       "api_created": 1763671532
+    },
+    {
+      "id": "gpt-5.2-2025-12-11",
+      "api_created": 1765313028
+    },
+    {
+      "id": "gpt-5.2",
+      "api_created": 1765313051
+    },
+    {
+      "id": "gpt-5.2-pro-2025-12-11",
+      "api_created": 1765343959
+    },
+    {
+      "id": "gpt-5.2-pro",
+      "api_created": 1765343983
+    },
+    {
+      "id": "gpt-5.2-chat-latest",
+      "api_created": 1765344352
     }
   ]
 }
