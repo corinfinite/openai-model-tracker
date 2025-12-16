@@ -471,6 +471,30 @@
     {
       "id": "gpt-5.2-chat-latest",
       "api_created": 1765344352
+    },
+    {
+      "id": "gpt-4o-mini-transcribe-2025-12-15",
+      "api_created": 1765610407
+    },
+    {
+      "id": "gpt-4o-mini-transcribe-2025-03-20",
+      "api_created": 1765610545
+    },
+    {
+      "id": "gpt-4o-mini-tts-2025-03-20",
+      "api_created": 1765610731
+    },
+    {
+      "id": "gpt-4o-mini-tts-2025-12-15",
+      "api_created": 1765610837
+    },
+    {
+      "id": "gpt-realtime-mini-2025-12-15",
+      "api_created": 1765612007
+    },
+    {
+      "id": "gpt-audio-mini-2025-12-15",
+      "api_created": 1765760008
     }
   ]
 }
