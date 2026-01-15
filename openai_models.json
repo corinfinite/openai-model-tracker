@@ -503,6 +503,10 @@
     {
       "id": "chatgpt-image-latest",
       "api_created": 1765925279
+    },
+    {
+      "id": "gpt-5.2-codex",
+      "api_created": 1766164985
     }
   ]
 }
