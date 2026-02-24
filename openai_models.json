@@ -507,6 +507,14 @@
     {
       "id": "gpt-5.2-codex",
       "api_created": 1766164985
+    },
+    {
+      "id": "gpt-realtime-1.5",
+      "api_created": 1771461469
+    },
+    {
+      "id": "gpt-audio-1.5",
+      "api_created": 1771550885
     }
   ]
 }
