@@ -509,6 +509,10 @@
       "api_created": 1766164985
     },
     {
+      "id": "gpt-5.3-codex",
+      "api_created": 1770537915
+    },
+    {
       "id": "gpt-realtime-1.5",
       "api_created": 1771461469
     },
