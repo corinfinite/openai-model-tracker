@@ -519,6 +519,10 @@
     {
       "id": "gpt-audio-1.5",
       "api_created": 1771550885
+    },
+    {
+      "id": "gpt-5.3-chat-latest",
+      "api_created": 1772236571
     }
   ]
 }
