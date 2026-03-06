@@ -523,6 +523,22 @@
     {
       "id": "gpt-5.3-chat-latest",
       "api_created": 1772236571
+    },
+    {
+      "id": "gpt-5.4-2026-03-05",
+      "api_created": 1772654062
+    },
+    {
+      "id": "gpt-5.4-pro",
+      "api_created": 1772659601
+    },
+    {
+      "id": "gpt-5.4-pro-2026-03-05",
+      "api_created": 1772659657
+    },
+    {
+      "id": "gpt-5.4",
+      "api_created": 1772691852
     }
   ]
 }
