@@ -539,6 +539,22 @@
     {
       "id": "gpt-5.4",
       "api_created": 1772691852
+    },
+    {
+      "id": "gpt-5.4-nano-2026-03-17",
+      "api_created": 1773450837
+    },
+    {
+      "id": "gpt-5.4-nano",
+      "api_created": 1773450870
+    },
+    {
+      "id": "gpt-5.4-mini-2026-03-17",
+      "api_created": 1773451076
+    },
+    {
+      "id": "gpt-5.4-mini",
+      "api_created": 1773451123
     }
   ]
 }
