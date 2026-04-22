@@ -555,6 +555,14 @@
     {
       "id": "gpt-5.4-mini",
       "api_created": 1773451123
+    },
+    {
+      "id": "gpt-image-2",
+      "api_created": 1776399795
+    },
+    {
+      "id": "gpt-image-2-2026-04-21",
+      "api_created": 1776399994
     }
   ]
 }
