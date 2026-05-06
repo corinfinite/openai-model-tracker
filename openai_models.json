@@ -579,6 +579,10 @@
     {
       "id": "gpt-5.5-pro-2026-04-23",
       "api_created": 1776894470
+    },
+    {
+      "id": "chat-latest",
+      "api_created": 1777704602
     }
   ]
 }
