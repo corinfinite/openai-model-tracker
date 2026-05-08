@@ -583,6 +583,18 @@
     {
       "id": "chat-latest",
       "api_created": 1777704602
+    },
+    {
+      "id": "gpt-realtime-translate",
+      "api_created": 1777950216
+    },
+    {
+      "id": "gpt-realtime-2",
+      "api_created": 1778006032
+    },
+    {
+      "id": "gpt-realtime-whisper",
+      "api_created": 1778012060
     }
   ]
 }
