@@ -595,6 +595,14 @@
     {
       "id": "gpt-realtime-whisper",
       "api_created": 1778012060
+    },
+    {
+      "id": "gpt-realtime-2.1",
+      "api_created": 1782254687
+    },
+    {
+      "id": "gpt-realtime-2.1-mini",
+      "api_created": 1782254706
     }
   ]
 }
